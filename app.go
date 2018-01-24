@@ -261,8 +261,8 @@ func AutoRouter(c ControllerInterface) *App {
 // it's same to App.AutoRouterWithPrefix.
 // if beego.AutoPrefix("/admin",&MainContorlller{}) and MainController has methods List and Page,
 // visit the url /admin/main/list to exec List function or /admin/main/page to exec Page function.
-func AutoPrefix(prefix string, c ControllerInterface) *App {
-	BeeApp.Handlers.AddAutoPrefix(prefix, c)
+func AutoPrefix(prefix string, c ControllerInterface,methods ...string) *App {
+	BeeApp.Handlers.AddAutoPrefix(prefix, c,methods)
 	return BeeApp
 }
 

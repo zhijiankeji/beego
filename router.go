@@ -43,7 +43,7 @@ const (
 )
 
 const (
-	routerTypeBeego = iota
+	routerTypeBeego   = iota
 	routerTypeRESTFul
 	routerTypeHandler
 )
@@ -386,7 +386,7 @@ func (p *ControllerRegister) Handler(pattern string, h http.Handler, options ...
 // visit the url /main/list to execute List function
 // /main/page to execute Page function.
 func (p *ControllerRegister) AddAuto(c ControllerInterface) {
-	p.AddAutoPrefix("/", c)
+	p.AddAutoPrefix("/", c,nil)
 }
 
 // AddAutoPrefix Add auto router to ControllerRegister with prefix.
@@ -394,7 +394,7 @@ func (p *ControllerRegister) AddAuto(c ControllerInterface) {
 // MainController has method List and Page.
 // visit the url /admin/main/list to execute List function
 // /admin/main/page to execute Page function.
-func (p *ControllerRegister) AddAutoPrefix(prefix string, c ControllerInterface) {
+func (p *ControllerRegister) AddAutoPrefix(prefix string, c ControllerInterface, methods []string) {
 	reflectVal := reflect.ValueOf(c)
 	rt := reflectVal.Type()
 	ct := reflect.Indirect(reflectVal).Type()
@@ -407,14 +407,23 @@ func (p *ControllerRegister) AddAutoPrefix(prefix string, c ControllerInterface)
 			route.controllerType = ct
 			pattern := path.Join(prefix, strFirstToLower(controllerName), strFirstToLower(rt.Method(i).Name), "*")
 			patternInit := path.Join(prefix, controllerName, rt.Method(i).Name, "*")
-			patternFix := path.Join(prefix,strFirstToLower(controllerName), strFirstToLower(rt.Method(i).Name))
+			patternFix := path.Join(prefix, strFirstToLower(controllerName), strFirstToLower(rt.Method(i).Name))
 			patternFixInit := path.Join(prefix, controllerName, rt.Method(i).Name)
 			route.pattern = pattern
-			for _, m := range HTTPMETHOD {
-				p.addToRouter(m, pattern, route)
-				p.addToRouter(m, patternInit, route)
-				p.addToRouter(m, patternFix, route)
-				p.addToRouter(m, patternFixInit, route)
+			if len(methods) == 0 || methods == nil {
+				for _, m := range HTTPMETHOD {
+					p.addToRouter(m, pattern, route)
+					p.addToRouter(m, patternInit, route)
+					p.addToRouter(m, patternFix, route)
+					p.addToRouter(m, patternFixInit, route)
+				}
+			} else {
+				for _, m := range methods {
+					p.addToRouter(m, pattern, route)
+					p.addToRouter(m, patternInit, route)
+					p.addToRouter(m, patternFix, route)
+					p.addToRouter(m, patternFixInit, route)
+				}
 			}
 		}
 	}
@@ -858,7 +867,7 @@ func (p *ControllerRegister) ServeHTTP(rw http.ResponseWriter, r *http.Request) 
 	}
 
 Admin:
-	//admin module record QPS
+//admin module record QPS
 	if BConfig.Listen.EnableAdmin {
 		timeDur := time.Since(startTime)
 		pattern := ""

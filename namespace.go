@@ -112,8 +112,8 @@ func (n *Namespace) AutoRouter(c ControllerInterface) *Namespace {
 
 // AutoPrefix same as beego.AutoPrefix
 // refer: https://godoc.org/github.com/zhijiankeji/beego#AutoPrefix
-func (n *Namespace) AutoPrefix(prefix string, c ControllerInterface) *Namespace {
-	n.handlers.AddAutoPrefix(prefix, c)
+func (n *Namespace) AutoPrefix(prefix string, c ControllerInterface, methods []string) *Namespace {
+	n.handlers.AddAutoPrefix(prefix, c,methods)
 	return n
 }
 
@@ -376,7 +376,7 @@ func NSAutoRouter(c ControllerInterface) LinkNamespace {
 // NSAutoPrefix call Namespace AutoPrefix
 func NSAutoPrefix(prefix string, c ControllerInterface) LinkNamespace {
 	return func(ns *Namespace) {
-		ns.AutoPrefix(prefix, c)
+		ns.AutoPrefix(prefix, c,nil)
 	}
 }
 
